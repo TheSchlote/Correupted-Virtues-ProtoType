@@ -7,18 +7,34 @@ public class SelectableTile : MonoBehaviour
     public Material normalMaterial;
     public Material highlightedMaterial;
     public TileMap map;
-    public BattleSystem battleSystem;
+    public BattleController battleController;
 
     void OnMouseDown()
     {
-        Character currentCharacter = battleSystem.currentCharacter.GetComponent<Character>();
+        if (battleController.currentState is not BattlePlayerState)
+        {
+            return;
+        }
+
+        Character currentCharacter = battleController.currentCharacter.GetComponent<Character>();
+        if (currentCharacter.isMoving)
+        {
+            return;
+        }
         map.GeneratePathTo(tileX, tileY);
         currentCharacter.MoveToTile(tileX, tileY);
     }
 
     void OnMouseEnter()
     {
-        Character currentCharacter = battleSystem.currentCharacter.GetComponent<Character>();
+        if (battleController.currentState is not BattlePlayerState)
+            return;
+
+        Character currentCharacter = battleController.currentCharacter.GetComponent<Character>();
+        if (currentCharacter.isMoving)
+        {
+            return;
+        }
         map.GeneratePathTo(tileX, tileY);
         foreach (Node node in currentCharacter.currentPathList)
         {
@@ -28,13 +44,21 @@ public class SelectableTile : MonoBehaviour
 
     void OnMouseExit()
     {
-        Character currentCharacter = battleSystem.currentCharacter.GetComponent<Character>();
+        if (battleController.currentState is not BattlePlayerState)
+            return;
+
+        Character currentCharacter = battleController.currentCharacter.GetComponent<Character>();
+        if (currentCharacter.isMoving)
+        {
+            return;
+        }
         foreach (Node node in currentCharacter.currentPathList)
         {
             node.tile.ChangeMaterial(normalMaterial);
         }
         currentCharacter.currentPathList = null;
     }
+
 
     public void ChangeMaterial(Material newMaterial)
     {

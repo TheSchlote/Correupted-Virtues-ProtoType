@@ -1,11 +1,9 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class TileMap : MonoBehaviour
 {
-    public BattleSystem battleSystem;
+    public BattleController battleController;
     public TileType[] tileTypes;
     int[,] tileGrid;
     public Node[,] nodeGrid;
@@ -14,11 +12,9 @@ public class TileMap : MonoBehaviour
 
     private void Start()
     {
-        GererateTileGridData();
-        GenerateNodeGridPathfinding();
-        GenerateVisualRepresentationOfMap();
+
     }
-    private void GererateTileGridData()
+    public void GererateTileGridData()
     {
         tileGrid = new int[mapSizeX, mapSizeY];
         for (int x = 0; x < mapSizeX; x++)
@@ -29,7 +25,7 @@ public class TileMap : MonoBehaviour
             }
         }
     }
-    private void GenerateNodeGridPathfinding()
+    public void GenerateNodeGridPathfinding()
     {
         nodeGrid = new Node[mapSizeX, mapSizeY];
         //Initialize a Node for each spot in the array
@@ -69,7 +65,7 @@ public class TileMap : MonoBehaviour
             }
         }
     }
-    private void GenerateVisualRepresentationOfMap()
+    public void GenerateVisualRepresentationOfMap()
     {
         for (int x = 0; x < mapSizeX; x++)
         {
@@ -83,7 +79,7 @@ public class TileMap : MonoBehaviour
                 selectableTile.tileX = x;
                 selectableTile.tileY = y;
                 selectableTile.map = this;
-                selectableTile.battleSystem = battleSystem;
+                selectableTile.battleController = battleController;
                 nodeGrid[x, y].tile = selectableTile;
             }
         }
@@ -91,7 +87,7 @@ public class TileMap : MonoBehaviour
     public void GeneratePathTo(int destinationX, int destinationY)
     {
         //Clear out our unit's old path.
-        Character selectedUnit = battleSystem.currentCharacter.GetComponent<Character>();
+        Character selectedUnit = battleController.currentCharacter.GetComponent<Character>();
         selectedUnit.currentPathList = null;
 
         Dictionary<Node, float> nodeDistanceMap = new();

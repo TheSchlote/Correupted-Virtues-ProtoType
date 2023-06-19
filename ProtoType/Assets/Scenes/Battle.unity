@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 267088204}
   - component: {fileID: 267088203}
   m_Layer: 0
-  m_Name: BattleSystem
+  m_Name: BattleController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,7 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25f8bd975498e6e4484f44c55df11753, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: 0
   characterTurnList: []
   currentCharacter: {fileID: 0}
   tileMap: {fileID: 1284910902}
@@ -382,7 +381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fefb0384fe67464885051904e9e976d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleSystem: {fileID: 267088203}
+  battleController: {fileID: 267088203}
   tileTypes:
   - {fileID: 3923596025583107839, guid: d825c1b0562e0cd4792beca7cd4b8481, type: 3}
 --- !u!4 &1284910903

@@ -6,8 +6,9 @@ public class Character : MonoBehaviour
 {
     public int tileX;
     public int tileY;
+    public Node currentNode;
     public TileMap map;
-    public bool isActive;
+    public bool isMoving;
     public List<Node> currentPathList;
 
     public int maxHealth = 10;
@@ -28,6 +29,7 @@ public class Character : MonoBehaviour
 
     IEnumerator MoveAlongPath(List<Node> path)
     {
+        isMoving = true;
         foreach (Node node in path)
         {
             while (new Vector3(node.x, 0, node.y) != transform.position)
@@ -38,6 +40,7 @@ public class Character : MonoBehaviour
             tileX = node.x;
             tileY = node.y;
         }
+        isMoving = false;
     }
 
     public void Attack(Character other)
