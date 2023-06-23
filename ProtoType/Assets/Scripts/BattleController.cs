@@ -29,6 +29,7 @@ public class BattleController : MonoBehaviour
     public void TransitionToState(BattleBaseState state)
     {
         currentState = state;
+        Debug.Log("Transitioning to " + currentState);
         currentState.EnterState(this);
     }
 
@@ -51,7 +52,7 @@ public class BattleController : MonoBehaviour
             GameObject enemyCharacter = Instantiate(enemyCharactesList[i], new Vector3(i, 0, tileMap.mapSizeY - 1), Quaternion.identity);
             enemyCharacter.GetComponent<Character>().map = tileMap;
             enemyCharacter.GetComponent<Character>().currentNode = tileMap.nodeGrid[i, tileMap.mapSizeY - 1];
-            enemyCharacter.GetComponent<Character>().map = tileMap;
+            characterTurnList.Add(enemyCharacter);
         }
     }
 

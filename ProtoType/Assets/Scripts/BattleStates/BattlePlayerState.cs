@@ -4,17 +4,44 @@ using UnityEngine;
 
 public class BattlePlayerState : BattleBaseState
 {
-    public override void EnterState(BattleController battleSystem)
+    public override void EnterState(BattleController battleController)
     {
         
     }
-    public override void Update(BattleController battleSystem)
+    public override void Update(BattleController battleController)
     {
-        //this is where we will check when the player is pushing buttons
-        if(Input.GetKeyDown(KeyCode.Space))
+        QuickTimeEvents quickTimeEvents = battleController.currentCharacter.GetComponent<QuickTimeEvents>();
+
+        // If the character is not attacking and player presses a key, start an attack.
+        if (!quickTimeEvents.isAttacking && Input.GetKeyDown(KeyCode.Keypad1)) //Numpad 1
         {
-            battleSystem.currentCharacter.GetComponent<QuickTimeEvents>().Attack();
-            battleSystem.currentCharacter.gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.SetActive(true);
+            quickTimeEvents.Attack(QuickTimeEvents.QTEType.RapidPress);
+            EnableCurrentCharacterUI(battleController);
         }
+        else if (!quickTimeEvents.isAttacking && Input.GetKeyDown(KeyCode.Keypad2)) //Numpad 2
+        {
+            quickTimeEvents.Attack(QuickTimeEvents.QTEType.SinglePress);
+            EnableCurrentCharacterUI(battleController);
+        }
+        else if (!quickTimeEvents.isAttacking && Input.GetKeyDown(KeyCode.Keypad3)) //Numpad 3
+        {
+            quickTimeEvents.Attack(QuickTimeEvents.QTEType.MatchPress);
+            EnableCurrentCharacterUI(battleController);
+        }
+
+        // If the character was attacking and has finished, end the turn.
+        if (quickTimeEvents.isAttacking && quickTimeEvents.quickTimeEventCompleted)
+        {
+            quickTimeEvents.isAttacking = false;
+            quickTimeEvents.quickTimeEventCompleted = false;
+            battleController.characterTurnList.Remove(battleController.currentCharacter);
+            battleController.TransitionToState(battleController.transitionState);
+        }
+    }
+
+    private void EnableCurrentCharacterUI(BattleController battleSystem)
+    {
+        GameObject uiElement = battleSystem.currentCharacter.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject;
+        uiElement.SetActive(true);
     }
 }

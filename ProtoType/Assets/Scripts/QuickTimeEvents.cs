@@ -5,82 +5,186 @@ using UnityEngine.UI;
 public class QuickTimeEvents : MonoBehaviour
 {
     public Slider quickTimeSlider;
-    public TMP_Text keyToPress;
+    public TMP_Text promptText;
 
-    bool freeze;//Stops slider from moving
+    private bool isSliderFrozen;
+    private QTEType currentEventType;
+    private KeyCode keyToRespond;
+    private readonly KeyCode[] availableKeys = { KeyCode.A, KeyCode.D, KeyCode.S };
+    private const int MaxSliderValue = 10;
+    private const int RapidPressStartValue = 5;
+    private const string PassMessage = "Pass!";
+    private const string FailMessage = "Fail!";
 
-    public bool rapidPress; //The Type Of Quick Time Event
+    private bool isEventActive = false;
+    public bool isAttacking = false;
+    public bool quickTimeEventCompleted= false;
+
+
     public enum QTEType { RapidPress, SinglePress, MatchPress };
-    public int decreaseSpeed;//Speed Slider Decreases    
 
-    KeyCode key;//The Key That Should Be Pressed To React To The QTE
-    KeyCode[] availableOptions = { KeyCode.A, KeyCode.D }; //Numerical Keys 1 And 2, Chosen Randomly For Player To React To
+    private KeyCode[] matchPressSequence;
+    private int currentSequenceIndex = 0;
+    public float decreaseSpeed;
 
-    bool currenltyAttacking = false;
-
-    // Use this for initialization
-    public void Attack()
+    public void Attack(QTEType eventType)
     {
-        //Randomly Selects The Key That Should Be Pressed And Displays It To The Player
-        int rand = Random.Range(0, 2);
-        key = availableOptions[rand];
-        keyToPress.text = availableOptions[rand].ToString();
+        isAttacking = true;
+        currentEventType = eventType;
 
-        //The Type Of QTE Determines Where The Slider Starts
-        if (rapidPress)
+        switch (currentEventType)
         {
-            quickTimeSlider.value = 5;//Start In The Middle, The Player Has To Quickly Press The Key To Make The Meter Full
+            case QTEType.RapidPress:
+                StartRapidPressEvent();
+                break;
+            case QTEType.SinglePress:
+                StartSinglePressEvent();
+                break;
+            case QTEType.MatchPress:
+                StartMatchPressEvent();
+                break;
         }
-        else
-        {
-            quickTimeSlider.value = 10;//Start At The End, The Player Has To Press The Button At Least Once To Stop The Timer
-        }
-        currenltyAttacking = true;
-        freeze = false;
+
+        isEventActive = true;
+        isSliderFrozen = false;
     }
 
+    private void StartRapidPressEvent()
+    {
+        keyToRespond = GetRandomKey();
+        promptText.text = keyToRespond.ToString();
+        quickTimeSlider.value = RapidPressStartValue;
+    }
+
+    private void StartSinglePressEvent()
+    {
+        keyToRespond = GetRandomKey();
+        promptText.text = keyToRespond.ToString();
+        quickTimeSlider.value = MaxSliderValue;
+    }
+
+    private void StartMatchPressEvent()
+    {
+        int sequenceLength = 3;
+        matchPressSequence = new KeyCode[sequenceLength];
+        quickTimeSlider.value = MaxSliderValue;
+        // Generate random sequence
+        for (int i = 0; i < sequenceLength; i++)
+        {
+            matchPressSequence[i] = GetRandomKey();
+        }
+
+        currentSequenceIndex = 0;
+
+        // Convert KeyCode sequence to string and display
+        promptText.text = KeyCodeSequenceToString(matchPressSequence);
+    }
+
+    private string KeyCodeSequenceToString(KeyCode[] sequence)
+    {
+        string sequenceString = "";
+
+        for (int i = 0; i < sequence.Length; i++)
+        {
+            if (i > 0)
+            {
+                sequenceString += " -> ";  // Add an arrow between keys
+            }
+
+            sequenceString += sequence[i].ToString();
+        }
+
+        return sequenceString;
+    }
+
+    private KeyCode GetRandomKey()
+    {
+        int randomIndex = Random.Range(0, availableKeys.Length);
+        return availableKeys[randomIndex];
+    }
 
     void Update()
     {
-        if(!currenltyAttacking)
+        if (!isEventActive)
         {
             return;
         }
-        //Move Value Of Slider Towards 0, If The QTE Has Yet To Be Passed Or Failed       
-        if (!freeze)
+
+        if (!isSliderFrozen)
         {
             quickTimeSlider.value = Mathf.MoveTowards(quickTimeSlider.value, 0, decreaseSpeed * Time.deltaTime);
         }
 
-        if (rapidPress)
+        switch (currentEventType)
         {
-            if (Input.GetKeyDown(key) && quickTimeSlider.value > 0)
-            {
-                quickTimeSlider.value += 1;
-                if (quickTimeSlider.value == 10)
-                {
-                    keyToPress.text = "Pass!";
-                    freeze = true;
-                    currenltyAttacking = false;
-                }
-            }
-        }
-
-        if (!rapidPress)
-        {
-            if (Input.GetKeyDown(key) && quickTimeSlider.value > 0)
-            {
-                keyToPress.text = "Pass!";
-                freeze = true;
-                currenltyAttacking = false;
-            }
+            case QTEType.RapidPress:
+                HandleRapidPressEvent();
+                break;
+            case QTEType.SinglePress:
+                HandleSinglePressEvent();
+                break;
+            case QTEType.MatchPress:
+                HandleMatchPressEvent();
+                break;
         }
 
         if (quickTimeSlider.value == 0)
         {
-            keyToPress.text = "Fail!";
-            freeze = true;
-            currenltyAttacking = false;
+            EventFailed();
         }
+    }
+
+    private void HandleRapidPressEvent()
+    {
+        if (Input.GetKeyDown(keyToRespond) && quickTimeSlider.value > 0)
+        {
+            quickTimeSlider.value += 1;
+
+            if (quickTimeSlider.value == MaxSliderValue)
+            {
+                EventPassed();
+            }
+        }
+    }
+
+    private void HandleSinglePressEvent()
+    {
+        if (Input.GetKeyDown(keyToRespond) && quickTimeSlider.value > 0)
+        {
+            EventPassed();
+        }
+    }
+
+    private void HandleMatchPressEvent()
+    {
+        if (Input.GetKeyDown(matchPressSequence[currentSequenceIndex]))
+        {
+            currentSequenceIndex++;
+
+            if (currentSequenceIndex == matchPressSequence.Length)
+            {
+                EventPassed();
+            }
+            else
+            {
+                promptText.text = matchPressSequence[currentSequenceIndex].ToString();
+            }
+        }
+    }
+
+    private void EventPassed()
+    {
+        promptText.text = PassMessage;
+        isSliderFrozen = true;
+        isEventActive = false;
+        quickTimeEventCompleted = true;
+    }
+
+    private void EventFailed()
+    {
+        promptText.text = FailMessage;
+        isSliderFrozen = true;
+        isEventActive = false;
+        quickTimeEventCompleted = true;
     }
 }

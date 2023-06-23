@@ -37,8 +37,16 @@ public class Character : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position, new Vector3(node.x, 0, node.y), Time.deltaTime);
                 yield return null;
             }
+
+            if (map.nodeGrid[tileX, tileY].tile.characterOnTile == gameObject)
+            {
+                map.nodeGrid[tileX, tileY].tile.characterOnTile = null;
+            }
+
             tileX = node.x;
             tileY = node.y;
+
+            map.nodeGrid[tileX, tileY].tile.characterOnTile = gameObject;
         }
         isMoving = false;
     }

@@ -292,8 +292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quickTimeSlider: {fileID: 1748969041589451321}
-  keyToPress: {fileID: 6121854441160890123}
-  rapidPress: 0
+  promptText: {fileID: 6121854441160890123}
   decreaseSpeed: 3
 --- !u!1 &2462419130637059886
 GameObject:

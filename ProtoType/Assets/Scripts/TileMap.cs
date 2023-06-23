@@ -159,4 +159,46 @@ public class TileMap : MonoBehaviour
 
         selectedUnit.currentPathList = currentPath;
     }
+    public Character FindClosestCharacter(string tag, Vector3 position)
+    {
+        GameObject[] characters = GameObject.FindGameObjectsWithTag(tag);
+        GameObject closest = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (GameObject character in characters)
+        {
+            Vector3 direction = character.transform.position - position;
+            float distance = direction.sqrMagnitude;
+            if (distance < closestDistance)
+            {
+                closest = character;
+                closestDistance = distance;
+            }
+        }
+
+        return closest.GetComponent<Character>();
+    }
+    public Node GetClosestAdjacentNode(Node centerNode)
+    {
+        Node closestNode = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (Node neighbour in centerNode.neighbours)
+        {
+            // Check if the tile is not occupied by a Character
+            if (!neighbour.tile.GetComponent<SelectableTile>().characterOnTile)
+            {
+                float distance = Vector3.Distance(centerNode.tile.transform.position, neighbour.tile.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestNode = neighbour;
+                    closestDistance = distance;
+                }
+            }
+        }
+
+        return closestNode;
+    }
+
+
 }

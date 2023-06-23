@@ -8,6 +8,7 @@ public class SelectableTile : MonoBehaviour
     public Material highlightedMaterial;
     public TileMap map;
     public BattleController battleController;
+    public GameObject characterOnTile;
 
     void OnMouseDown()
     {
